@@ -12,47 +12,73 @@ class BeerSong
   end
 
   def verse(number)
-    "#{quantity(number).capitalize} #{container(number)} of beer on the wall, #{quantity(number)} #{container(number)} of beer.\n" \
-    "#{action(number)}, #{quantity(successor(number))} #{container(successor(number))} of beer on the wall.\n"  
+    bootle_number = BottleNumber.for(number)
+    "#{bootle_number.quantity.capitalize} #{bootle_number.container} of beer on the wall, #{bootle_number.quantity} #{bootle_number.container} of beer.\n" \
+    "#{bootle_number.action}, #{bootle_number.successor.quantity} #{bootle_number.successor.container} of beer on the wall.\n"  
+  end
+end
+
+class BottleNumber
+  attr_reader :number
+
+  def self.for(number)
+    return number if number.kind_of?(BottleNumber)
+
+    case number
+    when 0
+      BottleNumber0
+    when 1
+      BottleNumber1
+    else
+      BottleNumber
+    end.new(number)
   end
 
-  def container(number)
-    if number == 1
-      "bottle"
-    else
-      "bottles"
-    end
+  def initialize(number)
+    @number = number
   end
 
-  def pronoun(number)
-    if number == 0
-      "it"
-    else
-      "one"
-    end
+  def container
+    "bottles"
   end
 
-  def quantity(number)
-    if number == 0
-      "no more"
-    else
-      number.to_s
-    end
+  def pronoun
+    "one"
   end
 
-  def successor(number)
-    if number == 0
-      99
-    else
-      number-1
-    end
+  def quantity
+    number.to_s
   end
 
-  def action(number)
-    if number == 0
-      "Go to the store and buy some more"
-    else
-      "Take #{pronoun(successor(number))} down and pass it around"
-    end
+  def successor
+    BottleNumber.for(number-1)
+  end
+
+  def action
+    "Take #{pronoun} down and pass it around"
+  end
+end
+
+class BottleNumber0 < BottleNumber
+  def quantity
+    "no more"
+  end
+
+  def successor
+    BottleNumber.for(99)
+  end
+
+  def action
+    "Go to the store and buy some more"
+  end
+end
+
+class BottleNumber1 < BottleNumber
+  def container
+    "bottle"
+  end
+
+  def pronoun
+    "it"
   end
 end
